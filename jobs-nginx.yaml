@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-data-nginx
+spec:
+  template:
+    spec:
+      containers:
+        - name: setup-container
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Initializing data for nginx-0..." && \
+              echo "Data for nginx-0" > /mnt/nginx-data-0/index.html && \
+              echo "Initializing data for nginx-1..." && \
+              echo "Data for nginx-1" > /mnt/nginx-data-1/index.html && \
+              echo "Initializing data for nginx-2..." && \
+              echo "Data for nginx-2" > /mnt/nginx-data-2/index.html
+          volumeMounts:
+            - name: nginx-data-0
+              mountPath: /mnt/nginx-data-0
+            - name: nginx-data-1
+              mountPath: /mnt/nginx-data-1
+            - name: nginx-data-2
+              mountPath: /mnt/nginx-data-2
+      volumes:
+        - name: nginx-data-0
+          persistentVolumeClaim:
+            claimName: nginx-data-nginx-0
+        - name: nginx-data-1
+          persistentVolumeClaim:
+            claimName: nginx-data-nginx-1
+        - name: nginx-data-2
+          persistentVolumeClaim:
+            claimName: nginx-data-nginx-2
+
+      restartPolicy: Never
+  backoffLimit: 4
