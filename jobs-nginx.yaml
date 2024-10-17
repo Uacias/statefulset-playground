@@ -11,29 +11,40 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              echo "Initializing data for nginx-0..." && \
-              echo "Data for nginx-0" > /mnt/nginx-data-0/index.html && \
-              echo "Initializing data for nginx-1..." && \
-              echo "Data for nginx-1" > /mnt/nginx-data-1/index.html && \
-              echo "Initializing data for nginx-2..." && \
-              echo "Data for nginx-2" > /mnt/nginx-data-2/index.html
+              echo "Initializing shared data for nginx..." && \
+              echo "Shared Data for nginx instances" > /mnt/shared-data/index.html
           volumeMounts:
-            - name: nginx-data-0
-              mountPath: /mnt/nginx-data-0
-            - name: nginx-data-1
-              mountPath: /mnt/nginx-data-1
-            - name: nginx-data-2
-              mountPath: /mnt/nginx-data-2
+            - name: shared-data
+              mountPath: /mnt/shared-data
       volumes:
-        - name: nginx-data-0
+        - name: shared-data
           persistentVolumeClaim:
-            claimName: nginx-data-nginx-0
-        - name: nginx-data-1
-          persistentVolumeClaim:
-            claimName: nginx-data-nginx-1
-        - name: nginx-data-2
-          persistentVolumeClaim:
-            claimName: nginx-data-nginx-2
-
+            claimName: shared-data-pvc
       restartPolicy: Never
   backoffLimit: 4
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: shared-data-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/mnt/shared-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-data-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
