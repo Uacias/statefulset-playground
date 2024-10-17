@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - statefulset.yaml
-  - job-pathfinder.yaml
+  - jobs-nginx.yaml
