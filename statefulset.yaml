@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx
+spec:
+  serviceName: nginx-service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      initContainers:
+        - name: init-container
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Copying data for nginx instance $(hostname)..." && \
+              cp /mnt/shared-data/index.html /usr/share/nginx/html/index.html
+          volumeMounts:
+            - name: shared-data
+              mountPath: /mnt/shared-data
+            - name: nginx-data
+              mountPath: /usr/share/nginx/html
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-data
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: nginx-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  clusterIP: None
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
