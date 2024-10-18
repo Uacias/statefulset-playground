@@ -6,6 +6,7 @@ resources:
   - pathfinder
   - juno
   - papyrus
+  - madara
 
 secretGenerator:
   - name: secret
