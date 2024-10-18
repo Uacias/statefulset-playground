@@ -4,7 +4,7 @@ metadata:
   name: juno
 spec:
   serviceName: juno-service
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: juno
