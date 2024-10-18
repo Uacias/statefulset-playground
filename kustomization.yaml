@@ -5,6 +5,7 @@ resources:
   - anvil
   - pathfinder
   - juno
+  - papyrus
 
 secretGenerator:
   - name: secret
