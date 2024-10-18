@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - anvil
   - pathfinder
+  - juno
 
 secretGenerator:
   - name: secret
